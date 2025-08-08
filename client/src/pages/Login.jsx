@@ -1,21 +1,39 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import "../pages/Auth.css";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/Auth.css";
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin(email, password);
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      onLogin(data.token);
+      navigate("/");
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (
-    <div className="auth-container">
+    <div className="centered-page">
       <div className="auth-card">
-        <h2>Welcome Back 🌸</h2>
-        <p className="subtitle">Log in to continue your journaling journey</p>
+        <h2>Welcome Back 👋</h2>
+        <p className="subtitle">Login to continue your journey</p>
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -31,10 +49,10 @@ export default function Login({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">Login</button>
+          <button type="submit" className="btn-primary">Login</button>
         </form>
         <p className="switch-text">
-          New here? <Link to="/register">Create an account</Link>
+          New here? <Link to="/register">Register</Link>
         </p>
       </div>
     </div>

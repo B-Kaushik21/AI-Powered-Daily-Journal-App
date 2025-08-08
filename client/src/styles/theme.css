@@ -1,0 +1,46 @@
+/* Generic button base */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  margin-top: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Primary action (e.g., Login, Register, Add Entry) */
+.btn-primary {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #45a049;
+}
+
+/* Secondary action (e.g., toggle between Login/Register) */
+.btn-secondary {
+  background-color: #1976d2;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #1565c0;
+}
+
+/* Danger button (e.g., Delete, Logout) */
+.btn-danger {
+  background-color: #e53935;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c62828;
+}
+
+/* Form button spacing fix */
+form button {
+  margin-top: 15px;
+  width: 100%;
+}

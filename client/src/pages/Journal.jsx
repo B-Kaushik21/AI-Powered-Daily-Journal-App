@@ -1,52 +1,86 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import "../styles/Journal.css";
 
-export default function Journal({ onLogout }) {
+export default function Journal({ onLogout, token }) {
   const [entries, setEntries] = useState([]);
-  const [text, setText] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-  const addEntry = () => {
-    if (text.trim()) {
-      setEntries([{ text, date: new Date().toLocaleString() }, ...entries]);
-      setText("");
+  useEffect(() => {
+    fetch("http://localhost:5000/api/entries", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setEntries(data.entries || []));
+
+    fetch("http://localhost:5000/api/auth/user", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json());
+  }, [token]);
+
+  const handleAddEntry = async (e) => {
+    e.preventDefault();
+    if (!title || !content) return;
+
+    const response = await fetch("http://localhost:5000/api/entries", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      setEntries([...entries, data.entry]);
+      setTitle("");
+      setContent("");
     }
   };
 
   return (
-    <div className="min-h-screen bg-pink-50 p-6">
-      <div className="max-w-lg mx-auto bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold text-pink-600">My Journal</h1>
-          <button
-            onClick={onLogout}
-            className="bg-red-400 hover:bg-red-500 text-white px-3 py-1 rounded-lg"
-          >
-            Logout
-          </button>
-        </div>
+    <div className="journal-container">
+      <div className="journal-header">
+        <h2>Hello Cutie!</h2>
+        <button onClick={onLogout} className="logout-button">
+          Logout
+        </button>
+      </div>
+
+      <h3>Add a New Journal Entry</h3>
+      <form className="entry-form" onSubmit={handleAddEntry}>
+        <input
+          type="text"
+          placeholder="Entry Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
         <textarea
-          placeholder="Write your thoughts..."
-          className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
-          rows={3}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          placeholder="What's on your mind?"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          required
         ></textarea>
-        <button
-          onClick={addEntry}
-          className="mt-3 w-full bg-pink-400 hover:bg-pink-500 text-white p-2 rounded-lg transition"
-        >
+        <button type="submit" className="add-button">
           Add Entry
         </button>
-        <div className="mt-6 space-y-4">
-          {entries.map((entry, index) => (
-            <div
-              key={index}
-              className="p-3 border rounded-lg bg-pink-50 shadow-sm"
-            >
-              <p className="text-sm text-gray-500">{entry.date}</p>
-              <p className="mt-1">{entry.text}</p>
+      </form>
+
+      <div className="entry-list">
+        {entries.length === 0 ? (
+          <p>No entries yet.</p>
+        ) : (
+          entries.map((entry) => (
+            <div key={entry._id} className="entry-card">
+              <h4>{entry.title}</h4>
+              <p>{entry.content}</p>
+              <small>{new Date(entry.date).toLocaleString()}</small>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );
