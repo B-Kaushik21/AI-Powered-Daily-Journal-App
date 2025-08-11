@@ -1,1 +1,1 @@
- #AI-powered-daily-journal-app
+ # AI-powered-daily-journal-app
