@@ -7,22 +7,26 @@ import './styles/theme.css';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState(null);
   const location = useLocation();
 
   // Check localStorage token on mount or when path changes
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
+    const storedToken = localStorage.getItem("token");
+    setIsAuthenticated(!!storedToken);
+    setToken(storedToken);
   }, [location.pathname]);
 
-  const handleLogin = (token) => {
-    localStorage.setItem("token", token);
+  const handleLogin = (newToken) => {
+    localStorage.setItem("token", newToken);
     setIsAuthenticated(true);
+    setToken(newToken);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
+    setToken(null);
   };
 
   return (
@@ -32,7 +36,7 @@ export default function App() {
           path="/"
           element={
             isAuthenticated ? (
-              <Journal onLogout={handleLogout} />
+              <Journal onLogout={handleLogout} token={token} />
             ) : (
               <Navigate to="/login" />
             )
